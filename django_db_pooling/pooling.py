@@ -3,7 +3,7 @@ from django.db.utils import ConnectionHandler
 from django.core import signals
 
 
-MAX_POOL_SIZE = 6
+MAX_POOL_SIZE = 1
 
 
 def set_pool_size(n):
