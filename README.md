@@ -47,7 +47,7 @@ connections may accumulate and the connection limit of MySQL is finally reached
 so that no more new connection can be established.
 
 To solve the above issue, this patch adds a non-local attribute 
-'connection_pool'. It is a dictionary with keys being the connection alias name 
+`connection_pool`. It is a dictionary with keys being the connection alias name 
 and values being a list of pooled connection objects. Whenever a new request 
 starts, connection object in the pool will be reused if there is any or else new 
 connection object is created. The connection object will be bound to the 
@@ -64,3 +64,5 @@ worker in Gunicorn
 to ensure the overall concurrent database connections are less than the maximum 
 permitted simultaneous connections in MySQL 
 ([--max_connections](https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_max_connections)).
+Alternatively, the `set_pool_size()` method accepts an additional argument 
+`max_outstanding`(default to `None` which means unlimited) to limit the maximum concurrent connections per worker basis.
