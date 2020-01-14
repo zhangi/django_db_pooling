@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="django_db_pooling",
-    version="0.0.3",
+    version="0.0.4",
     author="Ivan Zhang",
     author_email="sail4dream@gmail.com",
     description="Django Database Connection Pooling with Gevent workers",
