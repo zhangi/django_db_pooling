@@ -1,7 +1,9 @@
 from typing import Dict
+
+import django
+from django.core import signals
 from django.db import connections
 from django.db.utils import ConnectionHandler
-from django.core import signals
 from gevent.queue import Queue
 
 __all__ = ['set_pool_size', 'apply_patch']
@@ -9,6 +11,24 @@ __all__ = ['set_pool_size', 'apply_patch']
 MAX_POOL_SIZE = 1
 MAX_OUTSTANDING = None
 TIMEOUT = None
+
+
+def make_connection_shareable_below_2_2(conn):
+    conn.allow_thread_sharing = True
+
+
+def make_connection_shareable_above_2_2(conn):
+    """
+        After Django 2.2, BaseDatabaseWrapper.allow_thread_sharing become
+        a property. It can become shareable by calling inc_thread_sharing.
+    """
+    conn.inc_thread_sharing()
+
+
+if django.VERSION < (2, 2):
+    make_connection_shareable = make_connection_shareable_below_2_2
+else:
+    make_connection_shareable = make_connection_shareable_above_2_2
 
 
 def set_pool_size(n, max_outstanding=None, timeout=60):
@@ -61,7 +81,8 @@ class ConnectionPool:
         else:
             # create new instance of connection
             conn = _original_get_item(connections, self._alias)
-            conn.allow_thread_sharing = True  # connection can be recycled by different green-lets
+            # connection can be recycled by different green-lets
+            make_connection_shareable(conn)
         self._outstanding += 1
         return conn
 
